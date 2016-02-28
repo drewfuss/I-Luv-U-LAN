@@ -6,6 +6,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,7 +25,14 @@ import android.widget.ViewSwitcher;
 
 import com.dd.processbutton.iml.ActionProcessButton;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+import java.io.IOException;
+
 import andrewfurniss.com.iluvulan.Utils.LanUtils;
+import andrewfurniss.com.iluvulan.Web.AsyncScraper;
+import andrewfurniss.com.iluvulan.Web.ScrapeListener;
 
     /*
     The MIT License (MIT)
@@ -38,7 +47,7 @@ import andrewfurniss.com.iluvulan.Utils.LanUtils;
     furnished to do so, subject to the following conditions:
      */
 
-public class MainActivity extends Activity implements View.OnClickListener{
+public class MainActivity extends Activity implements View.OnClickListener, ScrapeListener{
 
     private RadioButton rad_School, rad_Home;
     private EditText etxt_Speed;
@@ -47,6 +56,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private ViewSwitcher v_Switch;
     private TextView txt_Status;
     private boolean button_pressed;
+    private String connectType, result;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +72,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
         v_Switch = (ViewSwitcher) findViewById(R.id.v_Switch);
         btn_Submit = (ActionProcessButton) findViewById(R.id.btn_Submit);
         txt_Status = (TextView) findViewById(R.id.txt_Status);
+
+
 
         v_Switch.setVisibility(View.INVISIBLE);
         btn_Submit.setVisibility(View.INVISIBLE);
@@ -155,7 +168,21 @@ public class MainActivity extends Activity implements View.OnClickListener{
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+         if(activeNetworkInfo != null && activeNetworkInfo.isConnected())
+         {
+             NetworkInfo wifiNetwork = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+             NetworkInfo mobileNetwork = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+             if (mobileNetwork != null && mobileNetwork.isConnected())
+             {
+                 connectType = "mobile";
+             }
+             else if (wifiNetwork != null && wifiNetwork.isConnected())
+             {
+                 connectType = "wifi";
+             }
+             return true;
+         }
+        return false;
     }
     private void connect()
     {
@@ -166,6 +193,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 Thread.sleep(2000);
                 btn_Submit.setProgress(100);
                 txt_Status.setVisibility(View.VISIBLE);
+                AsyncScraper scraper = new AsyncScraper();
+                scraper.listener = this;
+                scraper.execute("https://www.google.com/#q=ramapo+college+twitter");
+
             } catch (InterruptedException e) {
                 Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
             }
@@ -185,6 +216,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
     }
 
 
-
-
+    @Override
+    public void onFinish(String result) {
+        this.result = result;
+        Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
+    }
 }
