@@ -7,6 +7,9 @@ import android.os.Handler;
 
 import com.github.jlmd.animatedcircleloadingview.AnimatedCircleLoadingView;
 
+import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
+import io.fabric.sdk.android.Fabric;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,12 +19,19 @@ import andrewfurniss.com.iluvulan.Utils.LanUtils;
 
 public class SplashActivity extends Activity {
 
+    // Note: Your consumer key and secret should be obfuscated in your source code before shipping.
+    private static final String TWITTER_KEY = "bKUTQJvhvhPfB3T8Ebs52go9B ";
+    private static final String TWITTER_SECRET = "qCEg3JKsMLRLuzFFt6Ue0rbCgl2zZFqE0IQ82MIn1v1vmZdhUS ";
+
+
     private AnimatedCircleLoadingView loadingView;
     private BufferedReader reader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET);
+        Fabric.with(this, new Twitter(authConfig));
         setContentView(R.layout.activity_splash);
         final Handler handler = new Handler();
         final Runnable exit = new Runnable() {

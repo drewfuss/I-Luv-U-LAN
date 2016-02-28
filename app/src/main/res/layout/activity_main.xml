@@ -137,7 +137,8 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -145,14 +146,17 @@
                 android:textColor="#283339"
                 android:textSize="20dp"
                 android:text="Actual Download Speed"
-                android:id="@+id/txt_TitleDown"/>
+                android:id="@+id/txt_TitleDown"
+                android:gravity="center"
+                android:textStyle="bold"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#283339"
                 android:textSize="20dp"
                 android:text=""
-                android:id="@+id/txt_Down"  />
+                android:id="@+id/txt_Down"
+                android:gravity="center"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -160,18 +164,38 @@
                 android:textColor="#283339"
                 android:textSize="20dp"
                 android:text="Actual Upload Speed"
-                android:id="@+id/txt_TitleUp"/>
+                android:id="@+id/txt_TitleUp"
+                android:gravity="center"
+                android:textStyle="bold"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#283339"
                 android:textSize="20dp"
                 android:text="Coming Soon!"
-                android:id="@+id/txt_Up"  />
+                android:id="@+id/txt_Up"
+                android:gravity="center"/>
 
             </LinearLayout>
 
         </ViewSwitcher>
 
+    <com.dd.processbutton.iml.ActionProcessButton
+        android:id="@+id/btn_Tweet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Compain"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        custom:pb_colorComplete="@color/green_complete"
+        custom:pb_colorNormal="#ffc107"
+        custom:pb_colorPressed="#283339"
+        custom:pb_colorProgress="#283339"
+        custom:pb_textComplete="Connection Successful"
+        custom:pb_textProgress="Connecting"
+        custom:pb_textError="Connection Error"
+        custom:pb_colorError="@color/red_error"
+        android:layout_below="@id/v_SwitchLoading"/>
 
 </RelativeLayout>

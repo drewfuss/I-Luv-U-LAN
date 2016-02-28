@@ -28,7 +28,11 @@ import andrewfurniss.com.iluvulan.Web.AsyncDownload;
 import andrewfurniss.com.iluvulan.Web.DownloadListener;
 import fr.bmartel.speedtest.ISpeedTestListener;
 import fr.bmartel.speedtest.SpeedTestSocket;
-
+import io.fabric.sdk.android.Fabric;
+import com.twitter.sdk.android.tweetcomposer.TweetComposer;
+import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.*;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
 
 
 
@@ -50,14 +54,16 @@ public class MainActivity extends Activity implements View.OnClickListener, Down
     private RadioButton rad_School, rad_Home;
     private EditText etxt_Speed;
     private AutoCompleteTextView etxt_Provider, etxt_School;
-    private ActionProcessButton btn_Submit;
+    private ActionProcessButton btn_Submit, btn_Complain;
     private ViewSwitcher v_Switch, v_SwitchLoading;
     private TextView txt_Status, txt_Down;
     private boolean button_pressed, finished_loading;
     private String connectType, result;
     private CircleProgress circle_Progress;
     private Handler handler;
-    private Runnable r;
+    private Runnable r, receiver;
+    private static final String TWITTER_KEY = "bKUTQJvhvhPfB3T8Ebs52go9B";
+    private static final String TWITTER_SECRET = "qCEg3JKsMLRLuzFFt6Ue0rbCgl2zZFqE0IQ82MIn1v1vmZdhUS";
 
 
 
@@ -65,6 +71,10 @@ public class MainActivity extends Activity implements View.OnClickListener, Down
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        TwitterAuthConfig authConfig = new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET);
+        Fabric.with(this, new TwitterCore(authConfig), new TweetComposer());
+
 
         rad_School = (RadioButton) findViewById(R.id.rad_School);
         rad_Home = (RadioButton) findViewById(R.id.rad_Home);
@@ -74,9 +84,12 @@ public class MainActivity extends Activity implements View.OnClickListener, Down
         v_Switch = (ViewSwitcher) findViewById(R.id.v_Switch);
         v_SwitchLoading = (ViewSwitcher) findViewById(R.id.v_SwitchLoading);
         btn_Submit = (ActionProcessButton) findViewById(R.id.btn_Submit);
+        btn_Complain = (ActionProcessButton) findViewById(R.id.btn_Tweet);
         txt_Status = (TextView) findViewById(R.id.txt_Status);
         circle_Progress = (CircleProgress) findViewById(R.id.circle_progress);
+        txt_Down = (TextView) findViewById(R.id.txt_Down);
 
+        btn_Complain.setVisibility(View.INVISIBLE);
         circle_Progress.setVisibility(View.INVISIBLE);
         circle_Progress.setProgress(0);
         circle_Progress.setTextColor(Color.parseColor("#ffc107"));
@@ -92,15 +105,31 @@ public class MainActivity extends Activity implements View.OnClickListener, Down
                     circle_Progress.setProgress(circle_Progress.getProgress()+1);
                     handler.postDelayed(this, 50);
                 }
+                else if(circle_Progress.getProgress() == 100)
+                {
+                    v_SwitchLoading.showNext();
+                    handler.post(receiver);
+                }
                 else if(finished_loading)
                 {
                     finished_loading = false;
                     circle_Progress.setProgress(100);
                     handler.postDelayed(this, 50);
                 }
+
+            }
+        };
+        receiver = new Runnable() {
+            @Override
+            public void run() {
+                if(LanUtils.DOWN_SET)
+                {
+                    txt_Down.setText(LanUtils.DOWN_SPEED + " mbps");
+                    btn_Complain.setVisibility(View.VISIBLE);
+                }
                 else
                 {
-                    v_SwitchLoading.showNext();
+                    handler.postDelayed(this, 1000);
                 }
             }
         };
@@ -115,6 +144,15 @@ public class MainActivity extends Activity implements View.OnClickListener, Down
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, LanUtils.schools);
         etxt_School.setAdapter(adapter);
+
+        btn_Complain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //send tweet
+                TweetComposer.Builder builder = new TweetComposer.Builder(MainActivity.this).text("How bout this LAN, right?");
+                builder.show();
+            }
+        });
         
         btn_Submit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -237,9 +275,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Down
                           @Override
                           public void onDownloadPacketsReceived(int i, float v, float v2) {
                               float total = v/1048576;
-                              Log.d("Bits", total + "bps");
-                              Log.d("Bytes", Float.toString(v2) + "Bps");
-
+                              LanUtils.DOWN_SPEED = total;
+                              LanUtils.setSpeed();
                           }
 
                           @Override
@@ -254,8 +291,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Down
 
                           @Override
                           public void onUploadPacketsReceived(int i, float v, float v2) {
-                              float total = v/1048576;
-                              LanUtils.DOWN_SPEED = total;
+
                           }
 
                           @Override
@@ -299,5 +335,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Down
     @Override
     public void onFinishDownloading() {
         finished_loading = true;
+        txt_Status.setVisibility(View.INVISIBLE);
+        txt_Down.setText(LanUtils.DOWN_SPEED + " mbps");
     }
+
 }
