@@ -7,4 +7,5 @@ public class LanUtils {
 
     public static String[] schools;
     public static String GOOGLE_KEY = "AIzaSyDnU4S3rH_O1VtOseojxnu6f5EUu-KslG0";
+    public static float DOWN_SPEED;
 }

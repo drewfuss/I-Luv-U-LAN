@@ -2,9 +2,11 @@ package andrewfurniss.com.iluvulan;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -17,6 +19,9 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.dd.processbutton.iml.ActionProcessButton;
+import com.github.lzyzsd.circleprogress.CircleProgress;
+
+
 
 import andrewfurniss.com.iluvulan.Utils.LanUtils;
 import andrewfurniss.com.iluvulan.Web.AsyncDownload;
@@ -40,16 +45,20 @@ import fr.bmartel.speedtest.SpeedTestSocket;
     furnished to do so, subject to the following conditions:
      */
 
-public class MainActivity extends Activity implements View.OnClickListener{
+public class MainActivity extends Activity implements View.OnClickListener, DownloadListener{
 
     private RadioButton rad_School, rad_Home;
     private EditText etxt_Speed;
     private AutoCompleteTextView etxt_Provider, etxt_School;
     private ActionProcessButton btn_Submit;
-    private ViewSwitcher v_Switch;
-    private TextView txt_Status;
-    private boolean button_pressed;
+    private ViewSwitcher v_Switch, v_SwitchLoading;
+    private TextView txt_Status, txt_Down;
+    private boolean button_pressed, finished_loading;
     private String connectType, result;
+    private CircleProgress circle_Progress;
+    private Handler handler;
+    private Runnable r;
+
 
 
     @Override
@@ -63,9 +72,38 @@ public class MainActivity extends Activity implements View.OnClickListener{
         etxt_School = (AutoCompleteTextView) findViewById(R.id.etxt_School);
         etxt_Speed = (EditText) findViewById(R.id.etxt_Speed);
         v_Switch = (ViewSwitcher) findViewById(R.id.v_Switch);
+        v_SwitchLoading = (ViewSwitcher) findViewById(R.id.v_SwitchLoading);
         btn_Submit = (ActionProcessButton) findViewById(R.id.btn_Submit);
         txt_Status = (TextView) findViewById(R.id.txt_Status);
+        circle_Progress = (CircleProgress) findViewById(R.id.circle_progress);
 
+        circle_Progress.setVisibility(View.INVISIBLE);
+        circle_Progress.setProgress(0);
+        circle_Progress.setTextColor(Color.parseColor("#ffc107"));
+        circle_Progress.setUnfinishedColor(Color.parseColor("#ffc107"));
+        circle_Progress.setFinishedColor(Color.parseColor("#283339"));
+
+        handler = new Handler();
+        r = new Runnable() {
+            @Override
+            public void run() {
+                if(circle_Progress.getProgress() < 75)
+                {
+                    circle_Progress.setProgress(circle_Progress.getProgress()+1);
+                    handler.postDelayed(this, 50);
+                }
+                else if(finished_loading)
+                {
+                    finished_loading = false;
+                    circle_Progress.setProgress(100);
+                    handler.postDelayed(this, 50);
+                }
+                else
+                {
+                    v_SwitchLoading.showNext();
+                }
+            }
+        };
 
 
         v_Switch.setVisibility(View.INVISIBLE);
@@ -194,11 +232,14 @@ public class MainActivity extends Activity implements View.OnClickListener{
                    // scraper.execute("https://www.google.com/#q=ramapo+college+twitter");
                       AsyncDownload dl = new AsyncDownload();
                       SpeedTestSocket socket = new SpeedTestSocket();
-                    /*  socket.addSpeedTestListener(new ISpeedTestListener() {
+                      dl.listener = this;
+                      socket.addSpeedTestListener(new ISpeedTestListener() {
                           @Override
                           public void onDownloadPacketsReceived(int i, float v, float v2) {
-                              Log.d("Bits", Float.toString(v) + "bps");
+                              float total = v/1048576;
+                              Log.d("Bits", total + "bps");
                               Log.d("Bytes", Float.toString(v2) + "Bps");
+
                           }
 
                           @Override
@@ -213,7 +254,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
                           @Override
                           public void onUploadPacketsReceived(int i, float v, float v2) {
-
+                              float total = v/1048576;
+                              LanUtils.DOWN_SPEED = total;
                           }
 
                           @Override
@@ -225,8 +267,11 @@ public class MainActivity extends Activity implements View.OnClickListener{
                           public void onUploadProgress(int i) {
 
                           }
-                      });*/
-                   //   dl.execute(socket);
+                      });
+                      circle_Progress.setVisibility(View.VISIBLE);
+                      circle_Progress.animate();
+                      handler.postDelayed(r, 200);
+                      dl.execute(socket);
                 } else
                 {
                     Toast.makeText(getApplicationContext(), "Please connect to wifi", Toast.LENGTH_SHORT).show();
@@ -251,6 +296,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
     }
 
 
-
-
+    @Override
+    public void onFinishDownloading() {
+        finished_loading = true;
+    }
 }
