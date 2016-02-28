@@ -15,6 +15,7 @@ public class LanUtils  {
     public static float DOWN_SPEED;
     public DownloadListener listener;
     public static boolean DOWN_SET = false;
+    public static int PROGRESS = 0;
 
     public static void setSpeed()
     {

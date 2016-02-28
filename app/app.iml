@@ -88,6 +88,8 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="fbutton-1.0.5" level="project" />
     <orderEntry type="library" exported="" name="picasso-2.5.2" level="project" />
+    <orderEntry type="library" exported="" name="jsoup-1.8.3" level="project" />
+    <orderEntry type="library" exported="" name="AnimatedCircleLoadingView-1.1.5" level="project" />
     <orderEntry type="library" exported="" name="waitingdots-0.2.0" level="project" />
     <orderEntry type="library" exported="" name="gson-2.3" level="project" />
     <orderEntry type="library" exported="" name="cardview-v7-23.1.1" level="project" />

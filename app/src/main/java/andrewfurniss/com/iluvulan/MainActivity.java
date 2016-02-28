@@ -23,9 +23,12 @@ import com.github.lzyzsd.circleprogress.CircleProgress;
 
 
 
+
 import andrewfurniss.com.iluvulan.Utils.LanUtils;
 import andrewfurniss.com.iluvulan.Web.AsyncDownload;
+import andrewfurniss.com.iluvulan.Web.AsyncScraper;
 import andrewfurniss.com.iluvulan.Web.DownloadListener;
+import andrewfurniss.com.iluvulan.Web.ScrapeListener;
 import fr.bmartel.speedtest.ISpeedTestListener;
 import fr.bmartel.speedtest.SpeedTestSocket;
 import io.fabric.sdk.android.Fabric;
@@ -33,6 +36,9 @@ import com.twitter.sdk.android.tweetcomposer.TweetComposer;
 import com.twitter.sdk.android.Twitter;
 import com.twitter.sdk.android.core.*;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 
@@ -49,7 +55,7 @@ import com.twitter.sdk.android.core.TwitterAuthConfig;
     furnished to do so, subject to the following conditions:
      */
 
-public class MainActivity extends Activity implements View.OnClickListener, DownloadListener{
+public class MainActivity extends Activity implements View.OnClickListener, DownloadListener, ScrapeListener{
 
     private RadioButton rad_School, rad_Home;
     private EditText etxt_Speed;
@@ -64,6 +70,8 @@ public class MainActivity extends Activity implements View.OnClickListener, Down
     private Runnable r, receiver;
     private static final String TWITTER_KEY = "bKUTQJvhvhPfB3T8Ebs52go9B";
     private static final String TWITTER_SECRET = "qCEg3JKsMLRLuzFFt6Ue0rbCgl2zZFqE0IQ82MIn1v1vmZdhUS";
+    private String handle;
+    private String[] ISP = {"Optimum Online", "Comcast", "Verizon", "Xfinity", "Verizon FIOS", "Time Warner Cable"};
 
 
 
@@ -103,7 +111,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Down
                 if(circle_Progress.getProgress() < 75)
                 {
                     circle_Progress.setProgress(circle_Progress.getProgress()+1);
-                    handler.postDelayed(this, 50);
+                    handler.postDelayed(this, 100);
                 }
                 else if(circle_Progress.getProgress() == 100)
                 {
@@ -143,13 +151,14 @@ public class MainActivity extends Activity implements View.OnClickListener, Down
         rad_Home.setOnClickListener(this);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, LanUtils.schools);
+        ArrayAdapter<String> adapterTwo = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, ISP);
         etxt_School.setAdapter(adapter);
-
+        etxt_Provider.setAdapter(adapterTwo);
         btn_Complain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //send tweet
-                TweetComposer.Builder builder = new TweetComposer.Builder(MainActivity.this).text("How bout this LAN, right?");
+                TweetComposer.Builder builder = new TweetComposer.Builder(MainActivity.this).text("Hey, " + handle + ". I am only going " + LanUtils.DOWN_SPEED + " mbps.....WHAT YOU DOING BRO?");
                 builder.show();
             }
         });
@@ -265,9 +274,10 @@ public class MainActivity extends Activity implements View.OnClickListener, Down
                 txt_Status.setVisibility(View.VISIBLE);
                 if(connectType.equals("wifi"))
                 {
-                    //AsyncScraper scraper = new AsyncScraper();
-                    //scraper.listener = this;
-                   // scraper.execute("https://www.google.com/#q=ramapo+college+twitter");
+                    String actualURL = getURL();
+                    AsyncScraper scraper = new AsyncScraper();
+                    scraper.listener = this;
+                    scraper.execute(actualURL);
                       AsyncDownload dl = new AsyncDownload();
                       SpeedTestSocket socket = new SpeedTestSocket();
                       dl.listener = this;
@@ -281,7 +291,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Down
 
                           @Override
                           public void onDownloadProgress(int i) {
-
+                                LanUtils.PROGRESS += i;
                           }
 
                           @Override
@@ -339,4 +349,47 @@ public class MainActivity extends Activity implements View.OnClickListener, Down
         txt_Down.setText(LanUtils.DOWN_SPEED + " mbps");
     }
 
+    @Override
+    public void onFinish(String result) {
+        Log.d("results", result);
+        String pattern = "(@\\w+)";
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(result);
+        if(m.find())
+        {
+            handle = m.group(0);
+        }
+    }
+    public String getURL()
+    {
+        if(rad_Home.isChecked())
+        {
+            String temp = etxt_Provider.getText().toString();
+            String[] temps = temp.split(" ");
+            StringBuilder builder = new StringBuilder();
+            builder.append("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=");
+            for(String one : temps)
+            {
+                builder.append(one+"%20");
+            }
+            builder.append("twitter%20");
+            Log.d("url", builder.toString());
+            return builder.toString();
+
+        } else
+        {
+            String temp = etxt_School.getText().toString();
+            String[] temps = temp.split(" ");
+            StringBuilder builder = new StringBuilder();
+            builder.append("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=");
+            for(String one : temps)
+            {
+                builder.append(one+"%20");
+            }
+            builder.append("twitter%20");
+            Log.d("url", builder.toString());
+            return builder.toString();
+
+        }
+    }
 }
