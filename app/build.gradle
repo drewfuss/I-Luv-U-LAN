@@ -10,6 +10,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -23,12 +24,17 @@ repositories {
         url "http://dl.bintray.com/jlmd/maven"
     }
 }
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.github.rey5137:material:1.2.2'
     compile 'com.github.dmytrodanylyk.android-process-button:library:1.0.4'
     compile 'com.github.jlmd:AnimatedCircleLoadingView:1.1.5@aar'
-    compile files('libs/jsoup-1.8.3.jar')
+    compile fileTree(dir: 'libs', include: ['*.jar'])
 }

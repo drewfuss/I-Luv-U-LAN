@@ -1,18 +1,11 @@
 package andrewfurniss.com.iluvulan;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
@@ -25,14 +18,14 @@ import android.widget.ViewSwitcher;
 
 import com.dd.processbutton.iml.ActionProcessButton;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
-import java.io.IOException;
-
 import andrewfurniss.com.iluvulan.Utils.LanUtils;
-import andrewfurniss.com.iluvulan.Web.AsyncScraper;
-import andrewfurniss.com.iluvulan.Web.ScrapeListener;
+import andrewfurniss.com.iluvulan.Web.AsyncDownload;
+import andrewfurniss.com.iluvulan.Web.DownloadListener;
+import fr.bmartel.speedtest.ISpeedTestListener;
+import fr.bmartel.speedtest.SpeedTestSocket;
+
+
+
 
     /*
     The MIT License (MIT)
@@ -47,7 +40,7 @@ import andrewfurniss.com.iluvulan.Web.ScrapeListener;
     furnished to do so, subject to the following conditions:
      */
 
-public class MainActivity extends Activity implements View.OnClickListener, ScrapeListener{
+public class MainActivity extends Activity implements View.OnClickListener{
 
     private RadioButton rad_School, rad_Home;
     private EditText etxt_Speed;
@@ -116,6 +109,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Scra
                           } else{
                               btn_Submit.setProgress(0);
                               Toast.makeText(getApplicationContext(), "Please enter test criteria", Toast.LENGTH_SHORT).show();
+
                           }
                       } else {
                           btn_Submit.setProgress(0);
@@ -193,9 +187,50 @@ public class MainActivity extends Activity implements View.OnClickListener, Scra
                 Thread.sleep(2000);
                 btn_Submit.setProgress(100);
                 txt_Status.setVisibility(View.VISIBLE);
-                AsyncScraper scraper = new AsyncScraper();
-                scraper.listener = this;
-                scraper.execute("https://www.google.com/#q=ramapo+college+twitter");
+                if(connectType.equals("wifi"))
+                {
+                    //AsyncScraper scraper = new AsyncScraper();
+                    //scraper.listener = this;
+                   // scraper.execute("https://www.google.com/#q=ramapo+college+twitter");
+                      AsyncDownload dl = new AsyncDownload();
+                      SpeedTestSocket socket = new SpeedTestSocket();
+                    /*  socket.addSpeedTestListener(new ISpeedTestListener() {
+                          @Override
+                          public void onDownloadPacketsReceived(int i, float v, float v2) {
+                              Log.d("Bits", Float.toString(v) + "bps");
+                              Log.d("Bytes", Float.toString(v2) + "Bps");
+                          }
+
+                          @Override
+                          public void onDownloadProgress(int i) {
+
+                          }
+
+                          @Override
+                          public void onDownloadError(int i, String s) {
+
+                          }
+
+                          @Override
+                          public void onUploadPacketsReceived(int i, float v, float v2) {
+
+                          }
+
+                          @Override
+                          public void onUploadError(int i, String s) {
+
+                          }
+
+                          @Override
+                          public void onUploadProgress(int i) {
+
+                          }
+                      });*/
+                   //   dl.execute(socket);
+                } else
+                {
+                    Toast.makeText(getApplicationContext(), "Please connect to wifi", Toast.LENGTH_SHORT).show();
+                }
 
             } catch (InterruptedException e) {
                 Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
@@ -216,9 +251,6 @@ public class MainActivity extends Activity implements View.OnClickListener, Scra
     }
 
 
-    @Override
-    public void onFinish(String result) {
-        this.result = result;
-        Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
-    }
+
+
 }
