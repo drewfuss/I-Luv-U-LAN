@@ -1,0 +1,90 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="I Luv U LAN"
+        android:gravity="center"
+        android:background="#ffc107"
+        android:textColor="#283339"
+        android:textStyle="bold"
+        android:textSize="20dp"
+        android:id="@+id/txt_Title"/>
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txt_Title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:id="@+id/rad_Group">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="School Network"
+            android:buttonTint="#ffc107"
+            android:textSize="20dp"
+            android:id="@+id/rad_School"/>
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Home Network"
+            android:textSize="20dp"
+            android:buttonTint="#ffc107"
+            android:id="@+id/rad_Home"/>
+        </RadioGroup>
+
+    <ViewSwitcher
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rad_Group"
+        android:id="@+id/v_Switch">
+
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name of Institution"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:singleLine="true"
+            android:id="@+id/etxt_School"
+            android:textAlignment="center"
+           />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <EditText
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Name of Internet Provider"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:singleLine="true"
+                android:id="@+id/etxt_Provider"
+                android:textAlignment="center"/>
+
+
+            <EditText
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Expected download speed (mbps)"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:singleLine="true"
+                android:id="@+id/etxt_Speed"
+                android:textAlignment="center"/>
+
+            </LinearLayout>
+
+        </ViewSwitcher>
+
+</RelativeLayout>
